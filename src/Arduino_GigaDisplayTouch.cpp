@@ -30,30 +30,32 @@ Arduino_GigaDisplayTouch::~Arduino_GigaDisplayTouch()
 { }
 
 bool Arduino_GigaDisplayTouch::begin() {
-    // Take chip some time to start
     delay(300);
+
+    /* GT911 Power-on timing procedure - Ref. pg10 GT911 Rev09 */
+    /** T0: Set output low */
     pinMode(_rstPin, OUTPUT);
+    pinMode(_intPin, OUTPUT);
     digitalWrite(_rstPin, LOW);
-    /* begin select I2C slave addr */
-    /* T2: > 10ms */
+    digitalWrite(_intPin, LOW);
+    /** T1+T2: > 10ms */
     delay(11);
-    /* HIGH: 0x28/0x29 (0x14 7bit), LOW: 0xBA/0xBB (0x5D 7bit) */
-    digitalWrite(_intPin, LOW); //@FIXME
-    /* T3: > 100us */
+    /** Address selection: high - 0x28/0x29 (0x14 7bit), low - 0xBA/0xBB (0x5D 7bit) */
+    digitalWrite(_intPin, (_addr == GT911_I2C_ADDR_28_29));
+    /** T7: > 100us */
     delayMicroseconds(110);
-    pinMode(_rstPin, INPUT);
-    /* T4: > 5ms */
+    digitalWrite(_rstPin, HIGH);
+    /** T8: > 5ms */
     delay(6);
     digitalWrite(_intPin, LOW);
-    /* end select I2C slave addr */
-    /* T5: 50ms */
+    /** T3: > 50ms */
     delay(51);
-    pinMode(_intPin, INPUT); // INT pin has no pullups so simple set to floating input
-    _gt911DataReadyIrq = false;
-    attachInterrupt(_intPin, _gt911_irqHandler, RISING);     
-    delay(200);
+    pinMode(_intPin, INPUT);
 
-    /* Test communication */
+    _gt911DataReadyIrq = false;
+    attachInterrupt(_intPin, _gt911_irqHandler, RISING);
+
+    /* GT911 test communication */
     uint8_t testByte;
     uint8_t error = _gt911ReadOp(GT911_REG_CONFIG_DATA,  &testByte, 1);
 
@@ -112,7 +114,7 @@ uint8_t Arduino_GigaDisplayTouch::_gt911ReadOp(uint16_t reg, uint8_t * data, uin
 
 void Arduino_GigaDisplayTouch::_gt911onIrq() {
     uint8_t contacts;
-    uint8_t rawcoords[GT911_MAX_CONTACTS * GT911_CONTACT_SIZE]; //points buffer
+    uint8_t rawcoords[GT911_MAX_CONTACTS * GT911_CONTACT_SIZE];
     uint8_t error;
 
     error = _gt911ReadInputCoord(rawcoords, contacts);
