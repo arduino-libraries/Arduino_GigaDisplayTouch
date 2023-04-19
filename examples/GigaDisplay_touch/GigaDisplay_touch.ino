@@ -21,30 +21,18 @@ void setup() {
 
   Wire.setClock(400000);
   Wire.begin();
+  delay(300);
 
   if (touch.begin()) {
     Serial.println("GT911 init OK");
   } else {
     Serial.println("GT011 init FAILED");
   }
-
-  Serial.print("Check ACK on addr request on 0x");
-  Serial.println(WIRE_ADDR, HEX);
-  
-  Wire.beginTransmission(WIRE_ADDR);
-  Wire.write(0);
-  int error = Wire.endTransmission();
-  if (error == 0) {
-    Serial.println("SUCCESS");
-  } else {
-    Serial.print("ERROR #");
-    Serial.println(error);
-  }
-
 }
 
 void loop() {
-    
+    delay(1);
+    touch.detect();
 }
 
 
