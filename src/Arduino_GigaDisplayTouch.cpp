@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    Arduino_DisplayShieldTouch.cpp
+  * @file    Arduino_GigaDisplayTouch.cpp
   * @author  Leonardo Cavagnis
   * @version 
   * @date    
@@ -9,7 +9,7 @@
   */
 
  /* Includes -----------------------------------------------------------------*/
-#include "Arduino_DisplayShieldTouch.h"
+#include "Arduino_GigaDisplayTouch.h"
 
 /* Private defines -----------------------------------------------------------*/
 #define GT911_READ_COORD_ADDR   0x814E
@@ -22,14 +22,14 @@ volatile bool _gt911DataReadyIrq = false;
 void _gt911_irqHandler();
 
 /* Functions -----------------------------------------------------------------*/
-Arduino_DisplayShieldTouch::Arduino_DisplayShieldTouch(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr)
+Arduino_GigaDisplayTouch::Arduino_GigaDisplayTouch(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr)
 : _wire{wire}, _intPin{intPin}, _rstPin{rstPin}, _addr{addr} 
 { }
 
-Arduino_DisplayShieldTouch::~Arduino_DisplayShieldTouch() 
+Arduino_GigaDisplayTouch::~Arduino_GigaDisplayTouch() 
 { }
 
-bool Arduino_DisplayShieldTouch::begin() {
+bool Arduino_GigaDisplayTouch::begin() {
     // Take chip some time to start
     delay(300);
     pinMode(_rstPin, OUTPUT);
@@ -49,7 +49,8 @@ bool Arduino_DisplayShieldTouch::begin() {
     /* T5: 50ms */
     delay(51);
     pinMode(_intPin, INPUT); // INT pin has no pullups so simple set to floating input
-    attachInterrupt(_intPin, _gt911_irqHandler, RISING);
+    _gt911DataReadyIrq = false;
+    attachInterrupt(_intPin, _gt911_irqHandler, RISING);     
     delay(200);
 
     /* Test communication */
@@ -59,23 +60,21 @@ bool Arduino_DisplayShieldTouch::begin() {
     return (error == 0);
 }
 
-void Arduino_DisplayShieldTouch::end() 
+void Arduino_GigaDisplayTouch::end() 
 { }
 
-void Arduino_DisplayShieldTouch::detect() {
-  bool irq = _gt911DataReadyIrq;
-  _gt911DataReadyIrq = false;
-
-  if (irq) {
+void Arduino_GigaDisplayTouch::detect() {
+  if (_gt911DataReadyIrq) {
     _gt911onIrq();
+    _gt911DataReadyIrq = false;
   }
 }
 
-uint8_t Arduino_DisplayShieldTouch::_gt911WriteOp(uint16_t reg, uint8_t data) {
+uint8_t Arduino_GigaDisplayTouch::_gt911WriteOp(uint16_t reg, uint8_t data) {
     _gt911WriteBytesOp(reg, &data, 1);
 }
 
-uint8_t Arduino_DisplayShieldTouch::_gt911WriteBytesOp(uint16_t reg, uint8_t * data, uint8_t len) {
+uint8_t Arduino_GigaDisplayTouch::_gt911WriteBytesOp(uint16_t reg, uint8_t * data, uint8_t len) {
     uint8_t status = 0;
 
     _wire.beginTransmission(_addr);
@@ -91,7 +90,7 @@ uint8_t Arduino_DisplayShieldTouch::_gt911WriteBytesOp(uint16_t reg, uint8_t * d
     return status;
 }
 
-uint8_t Arduino_DisplayShieldTouch::_gt911ReadOp(uint16_t reg, uint8_t * data, uint8_t len) {
+uint8_t Arduino_GigaDisplayTouch::_gt911ReadOp(uint16_t reg, uint8_t * data, uint8_t len) {
     uint8_t status = 0;
 
     _wire.beginTransmission(_addr);
@@ -111,56 +110,42 @@ uint8_t Arduino_DisplayShieldTouch::_gt911ReadOp(uint16_t reg, uint8_t * data, u
     else return 4; /* Other error */
 }
 
-void Arduino_DisplayShieldTouch::_gt911onIrq() {
+void Arduino_GigaDisplayTouch::_gt911onIrq() {
     uint8_t contacts;
-    uint8_t rawdata[GT911_MAX_CONTACTS * GT911_CONTACT_SIZE]; //points buffer
+    uint8_t rawcoords[GT911_MAX_CONTACTS * GT911_CONTACT_SIZE]; //points buffer
     uint8_t error;
 
-    error = _gt911ReadInputCoord(rawdata, contacts);
+    error = _gt911ReadInputCoord(rawcoords, contacts);
 
     if (error) {
         return;
     }
 
-    if (contacts > 0) {
-        _points[0].trackId  = rawdata[1];	    
-        _points[0].x        = ((uint16_t)rawdata[3] << 8) + rawdata[2];
-        _points[0].y        = ((uint16_t)rawdata[5] << 8) + rawdata[4];
-        _points[0].area     = ((uint16_t)rawdata[7] << 8) + rawdata[6];
-
-        _points[1].trackId  = rawdata[9];
-        _points[1].x        = ((uint16_t)rawdata[11] << 8) + rawdata[10];
-        _points[1].y        = ((uint16_t)rawdata[13] << 8) + rawdata[12];
-        _points[1].area     = ((uint16_t)rawdata[15] << 8) + rawdata[14];
-
-        _points[2].trackId  = rawdata[17];
-        _points[2].x        = ((uint16_t)rawdata[19] << 8) + rawdata[18];
-        _points[2].y        = ((uint16_t)rawdata[21] << 8) + rawdata[20];
-        _points[2].area     = ((uint16_t)rawdata[23] << 8) + rawdata[22];
-
-        _points[3].trackId  = rawdata[25];
-        _points[3].x        = ((uint16_t)rawdata[27] << 8) + rawdata[26];
-        _points[3].y        = ((uint16_t)rawdata[29] << 8) + rawdata[28];
-        _points[3].area     = ((uint16_t)rawdata[31] << 8) + rawdata[30];
-
-        _points[4].trackId  = rawdata[33];
-        _points[4].x        = ((uint16_t)rawdata[35] << 8) + rawdata[34];
-        _points[4].y        = ((uint16_t)rawdata[37] << 8) + rawdata[36]; 
-        _points[4].area     = ((uint16_t)rawdata[39] << 8) + rawdata[38];
-        
-        //@TODO: touchHandler(contacts, points);
+    for (uint8_t i = 0; i < contacts; i++) {
+        _coords[i].trackId  = rawcoords[1 + 8*i];	    
+        _coords[i].x        = ((uint16_t)rawcoords[3 + 8*i] << 8) + rawcoords[2 + 8*i];
+        _coords[i].y        = ((uint16_t)rawcoords[5 + 8*i] << 8) + rawcoords[4 + 8*i];
+        _coords[i].area     = ((uint16_t)rawcoords[7 + 8*i] << 8) + rawcoords[6 + 8*i];
     }
+
+    if (contacts > 0) {
+        Serial.println("Contacts: ");
+        Serial.println(_coords[0].x);
+        Serial.println(_coords[0].y);
+        //@TODO: touchHandler(contacts, _coords);
+    }
+    
     _gt911WriteOp(GT911_READ_COORD_ADDR, 0);
 }
 
-uint8_t Arduino_DisplayShieldTouch::_gt911ReadInputCoord(uint8_t * pointsbuf, uint8_t& contacts) {
+uint8_t Arduino_GigaDisplayTouch::_gt911ReadInputCoord(uint8_t * pointsbuf, uint8_t& contacts) {
     uint8_t error;
     
     contacts = 0;
     error    = _gt911ReadOp(GT911_READ_COORD_ADDR, pointsbuf, GT911_CONTACT_SIZE * GT911_MAX_CONTACTS);
 
     if (error) {
-        return 1;
+        return 1; /* I2C Error */
     }
     
     if (!(pointsbuf[0] & 0x80)) {	  
@@ -168,7 +153,7 @@ uint8_t Arduino_DisplayShieldTouch::_gt911ReadInputCoord(uint8_t * pointsbuf, ui
     }
 
     contacts = pointsbuf[0] & 0xF;
-    return 0;
+    return 0; /* Success */
 }
 
 void _gt911_irqHandler() {

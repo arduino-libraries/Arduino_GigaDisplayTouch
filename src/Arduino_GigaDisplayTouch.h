@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    Arduino_DisplayShieldTouch.h
+  * @file    Arduino_GigaDisplayTouch.h
   * @author  Leonardo Cavagnis
   * @version 
   * @date    
@@ -8,8 +8,8 @@
   ******************************************************************************
   */
 
-#ifndef _ARDUINO_DISPLAYSHIELDTOUCH_H
-#define _ARDUINO_DISPLAYSHIELDTOUCH_H
+#ifndef _ARDUINO_GIGADISPLAYTOUCH_H
+#define _ARDUINO_GIGADISPLAYTOUCH_H
 
 /* Includes ------------------------------------------------------------------*/
 #include <Arduino.h>
@@ -23,12 +23,12 @@
 #define GT911_MAX_CONTACTS      5
 
 /* Exported types ------------------------------------------------------------*/
-typedef struct GT911point_s GT911point_t;
+typedef struct GDTcoord_s GDTcoord_t;
 
 /* Exported enumeration ------------------------------------------------------*/
 
 /* Exported struct -----------------------------------------------------------*/
-struct GT911point_s {
+struct GDTcoord_s {
   // 0x814F-0x8156, ... 0x8176 (5 points) 
   uint8_t trackId;
   uint16_t x;
@@ -38,27 +38,27 @@ struct GT911point_s {
 };
 
 /* Class ----------------------------------------------------------------------*/
-class Arduino_DisplayShieldTouch {
-    public:
-        Arduino_DisplayShieldTouch(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr);
-        ~Arduino_DisplayShieldTouch();
+class Arduino_GigaDisplayTouch {
+  public:
+      Arduino_GigaDisplayTouch(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr);
+      ~Arduino_GigaDisplayTouch();
 
-        bool begin();
-        void end();
+      bool begin();
+      void end();
 
-        void detect();
-    private:
-        TwoWire&      _wire;
-        uint8_t       _intPin;
-        uint8_t       _rstPin;
-        uint8_t       _addr;
-        GT911point_t  _points[GT911_MAX_CONTACTS];
-        
-        uint8_t   _gt911WriteOp(uint16_t reg, uint8_t data);
-        uint8_t   _gt911WriteBytesOp(uint16_t reg, uint8_t * data, uint8_t len);
-        uint8_t   _gt911ReadOp(uint16_t reg, uint8_t * data, uint8_t len);
-        void      _gt911onIrq();
-        uint8_t   _gt911ReadInputCoord(uint8_t * pointsbuf, uint8_t& contacts);
+      void detect();
+  private:
+      TwoWire&      _wire;
+      uint8_t       _intPin;
+      uint8_t       _rstPin;
+      uint8_t       _addr;
+      GDTcoord_t    _coords[GT911_MAX_CONTACTS];
+      
+      uint8_t   _gt911WriteOp(uint16_t reg, uint8_t data);
+      uint8_t   _gt911WriteBytesOp(uint16_t reg, uint8_t * data, uint8_t len);
+      uint8_t   _gt911ReadOp(uint16_t reg, uint8_t * data, uint8_t len);
+      void      _gt911onIrq();
+      uint8_t   _gt911ReadInputCoord(uint8_t * pointsbuf, uint8_t& contacts);
 };
 
-#endif /* _ARDUINO_DISPLAYSHIELDTOUCH_H */
+#endif /* _ARDUINO_GIGADISPLAYTOUCH_H */
