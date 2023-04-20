@@ -15,6 +15,17 @@
 
 Arduino_GigaDisplayTouch touch(Wire, INT_PIN, RST_PIN, WIRE_ADDR);
 
+void gigaTouchHandler(uint8_t contacts, GDTcoord_t* coord) {
+  Serial.print("Contacts: ");
+  Serial.println(contacts);
+
+  for (uint8_t i = 0; i < contacts; i++) {
+    Serial.print(coord[i].x);
+    Serial.print(" ");
+    Serial.println(coord[i].y);
+  }
+}
+
 void setup() { 
   Serial.begin(115200);
   while(!Serial) {}
@@ -22,16 +33,20 @@ void setup() {
   Wire.setClock(400000);
   Wire.begin();
 
+  Serial.print("Touch controller init ");
   if (touch.begin()) {
-    Serial.println("GT911 init OK");
+    Serial.println("SUCCESS");
   } else {
-    Serial.println("GT011 init FAILED");
+    Serial.println("FAILED");
+    while(1) ;
   }
+
+  touch.attachTouchHandler(gigaTouchHandler);
 }
 
 void loop() {
-    delay(1);
-    touch.detect();
+  touch.detect();
+  delay(1);
 }
 
 

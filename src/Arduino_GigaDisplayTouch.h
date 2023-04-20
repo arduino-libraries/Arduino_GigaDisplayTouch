@@ -47,12 +47,14 @@ class Arduino_GigaDisplayTouch {
       void end();
 
       void detect();
+      void attachTouchHandler(void (*handler)(uint8_t, GDTcoord_t*));
   private:
       TwoWire&      _wire;
       uint8_t       _intPin;
       uint8_t       _rstPin;
       uint8_t       _addr;
       GDTcoord_t    _coords[GT911_MAX_CONTACTS];
+      void          (*_gt911TouchHandler)(uint8_t, GDTcoord_t*);
       
       uint8_t   _gt911WriteOp(uint16_t reg, uint8_t data);
       uint8_t   _gt911WriteBytesOp(uint16_t reg, uint8_t * data, uint8_t len);

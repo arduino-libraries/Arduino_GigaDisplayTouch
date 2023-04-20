@@ -54,6 +54,7 @@ bool Arduino_GigaDisplayTouch::begin() {
 
     _gt911DataReadyIrq = false;
     attachInterrupt(_intPin, _gt911_irqHandler, RISING);
+    _gt911TouchHandler = nullptr;
 
     /* GT911 test communication */
     uint8_t testByte;
@@ -70,6 +71,10 @@ void Arduino_GigaDisplayTouch::detect() {
     _gt911onIrq();
     _gt911DataReadyIrq = false;
   }
+}
+
+void Arduino_GigaDisplayTouch::attachTouchHandler(void (*handler)(uint8_t, GDTcoord_t*)) {
+    _gt911TouchHandler = handler;
 }
 
 uint8_t Arduino_GigaDisplayTouch::_gt911WriteOp(uint16_t reg, uint8_t data) {
@@ -130,13 +135,8 @@ void Arduino_GigaDisplayTouch::_gt911onIrq() {
         _coords[i].area     = ((uint16_t)rawcoords[7 + 8*i] << 8) + rawcoords[6 + 8*i];
     }
 
-    if (contacts > 0) {
-        Serial.println("Contacts: ");
-        Serial.println(_coords[0].x);
-        Serial.println(_coords[0].y);
-        //@TODO: touchHandler(contacts, _coords);
-    }
-    
+    if (contacts > 0 && _gt911TouchHandler != nullptr) _gt911TouchHandler(contacts, _coords);
+ 
     _gt911WriteOp(GT911_READ_COORD_ADDR, 0);
 }
 
