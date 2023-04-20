@@ -16,19 +16,19 @@
 #include "Wire.h"
 
 /* Exported defines ----------------------------------------------------------*/
-#define GT911_I2C_ADDR_28_29    (((0x28 >> 1) & 0x7F) | 0x80) // 0x28/0x29 - 0x14 (7bit)
-#define GT911_I2C_ADDR_BA_BB    (((0xBA >> 1) & 0x7F) | 0x80) // 0xBA/0xBB - 0x5D (7bit)
+#define GT911_I2C_ADDR_BA_BB    (0x5D | 0x80)  // 0xBA/0xBB - 0x5D (7bit address)
+#define GT911_I2C_ADDR_28_29    (0x14 | 0x80)  // 0x28/0x29 - 0x14 (7bit address)
 
 #define GT911_CONTACT_SIZE      8
 #define GT911_MAX_CONTACTS      5
 
 /* Exported types ------------------------------------------------------------*/
-typedef struct GDTcoord_s GDTcoord_t;
+typedef struct GDTpoint_s GDTpoint_t;
 
 /* Exported enumeration ------------------------------------------------------*/
 
 /* Exported struct -----------------------------------------------------------*/
-struct GDTcoord_s {
+struct GDTpoint_s {
   // 0x814F-0x8156, ... 0x8176 (5 points) 
   uint8_t trackId;
   uint16_t x;
@@ -47,14 +47,15 @@ class Arduino_GigaDisplayTouch {
       void end();
 
       void detect();
-      void attachTouchHandler(void (*handler)(uint8_t, GDTcoord_t*));
+      bool detect(uint8_t& contacts, GDTpoint_t* points);
+      void attachTouchHandler(void (*handler)(uint8_t, GDTpoint_t*));
   private:
       TwoWire&      _wire;
       uint8_t       _intPin;
       uint8_t       _rstPin;
       uint8_t       _addr;
-      GDTcoord_t    _coords[GT911_MAX_CONTACTS];
-      void          (*_gt911TouchHandler)(uint8_t, GDTcoord_t*);
+      GDTpoint_t    _points[GT911_MAX_CONTACTS];
+      void          (*_gt911TouchHandler)(uint8_t, GDTpoint_t*);
       
       uint8_t   _gt911WriteOp(uint16_t reg, uint8_t data);
       uint8_t   _gt911WriteBytesOp(uint16_t reg, uint8_t * data, uint8_t len);
