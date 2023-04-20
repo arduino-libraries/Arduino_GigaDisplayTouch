@@ -48,7 +48,7 @@ class Arduino_GigaDisplayTouch {
 
       void detect();
       bool detect(uint8_t& contacts, GDTpoint_t* points);
-      void attachTouchHandler(void (*handler)(uint8_t, GDTpoint_t*));
+      void attach(void (*handler)(uint8_t, GDTpoint_t*));
   private:
       TwoWire&      _wire;
       uint8_t       _intPin;

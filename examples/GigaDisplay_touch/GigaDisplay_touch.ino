@@ -43,7 +43,7 @@ void setup() {
     while(1) ;
   }
 #if TOUCH_MODE
-  touch.attachTouchHandler(gigaTouchHandler);
+  touch.attach(gigaTouchHandler);
 #endif
 }
 

@@ -95,7 +95,7 @@ bool Arduino_GigaDisplayTouch::detect(uint8_t& contacts, GDTpoint_t* points) {
     else                return false;
 }
 
-void Arduino_GigaDisplayTouch::attachTouchHandler(void (*handler)(uint8_t, GDTpoint_t*)) {
+void Arduino_GigaDisplayTouch::attach(void (*handler)(uint8_t, GDTpoint_t*)) {
     attachInterrupt(_intPin, _gt911_irqHandler, RISING);
     _gt911TouchHandler = handler;
 }
