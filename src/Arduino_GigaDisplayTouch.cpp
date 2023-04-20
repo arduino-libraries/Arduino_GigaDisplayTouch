@@ -78,7 +78,7 @@ bool Arduino_GigaDisplayTouch::detect(uint8_t& contacts, GDTpoint_t* points) {
 
     error = _gt911ReadInputCoord(rawpoints, contacts);
 
-    if (error || (contacts == 0)) {
+    if (error) {
         return false;
     }
 
@@ -91,7 +91,8 @@ bool Arduino_GigaDisplayTouch::detect(uint8_t& contacts, GDTpoint_t* points) {
  
     _gt911WriteOp(GT911_REG_GESTURE_START_POINT, 0); /* Reset buffer status to finish the reading */
 
-    return true;
+    if (contacts > 0)   return true;
+    else                return false;
 }
 
 void Arduino_GigaDisplayTouch::attachTouchHandler(void (*handler)(uint8_t, GDTpoint_t*)) {
