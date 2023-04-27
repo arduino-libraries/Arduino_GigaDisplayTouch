@@ -14,6 +14,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <Arduino.h>
 #include "Wire.h"
+#include "pinDefinitions.h"
 
 /* Exported defines ----------------------------------------------------------*/
 #define GT911_I2C_ADDR_BA_BB    (0x5D | 0x80)  // 0xBA/0xBB - 0x5D (7bit address)
@@ -39,8 +40,20 @@ struct GDTpoint_s {
 
 /* Class ----------------------------------------------------------------------*/
 class Arduino_GigaDisplayTouch {
-  public:
+  public:  
+    #if defined(ARDUINO_GIGA)
+      Arduino_GigaDisplayTouch(TwoWire& wire  = Wire1, 
+                               uint8_t intPin = PinNameToIndex(PI_1),
+                               uint8_t rstPin = PinNameToIndex(PI_2), 
+                               uint8_t addr   = GT911_I2C_ADDR_BA_BB);
+    #elif defined(ARDUINO_PORTENTA_H7_M7)
+      Arduino_GigaDisplayTouch(TwoWire& wire  = Wire, 
+                               uint8_t intPin = PinNameToIndex(PD_4),
+                               uint8_t rstPin = PinNameToIndex(PD_5), 
+                               uint8_t addr   = GT911_I2C_ADDR_BA_BB);
+    #else 
       Arduino_GigaDisplayTouch(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr);
+    #endif
       ~Arduino_GigaDisplayTouch();
 
       bool begin();
