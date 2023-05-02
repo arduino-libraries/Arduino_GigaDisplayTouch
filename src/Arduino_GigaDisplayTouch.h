@@ -14,6 +14,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <Arduino.h>
 #include "Wire.h"
+#include "mbed.h"
 #include "pinDefinitions.h"
 
 /* Exported defines ----------------------------------------------------------*/
@@ -52,24 +53,27 @@ class Arduino_GigaDisplayTouch {
                                uint8_t rstPin = PinNameToIndex(PD_5), 
                                uint8_t addr   = GT911_I2C_ADDR_BA_BB);
     #else 
-      Arduino_GigaDisplayTouch(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr);
+      Arduino_GigaDisplayTouch(TwoWire& wire, 
+                               uint8_t intPin, 
+                               uint8_t rstPin, 
+                               uint8_t addr);
     #endif
       ~Arduino_GigaDisplayTouch();
 
       bool begin();
       void end();
 
-      void detect();
       bool detect(uint8_t& contacts, GDTpoint_t* points);
       void attach(void (*handler)(uint8_t, GDTpoint_t*));
   private:
-      TwoWire&      _wire;
-      uint8_t       _intPin;
-      uint8_t       _rstPin;
-      uint8_t       _addr;
-      GDTpoint_t    _points[GT911_MAX_CONTACTS];
-      void          (*_gt911TouchHandler)(uint8_t, GDTpoint_t*);
-      
+      TwoWire&          _wire;
+      uint8_t           _intPin;
+      mbed::InterruptIn _irqInt; 
+      uint8_t           _rstPin;
+      uint8_t           _addr;
+      GDTpoint_t        _points[GT911_MAX_CONTACTS];
+      void              (*_gt911TouchHandler)(uint8_t, GDTpoint_t*);
+
       uint8_t   _gt911WriteOp(uint16_t reg, uint8_t data);
       uint8_t   _gt911WriteBytesOp(uint16_t reg, uint8_t * data, uint8_t len);
       uint8_t   _gt911ReadOp(uint16_t reg, uint8_t * data, uint8_t len);

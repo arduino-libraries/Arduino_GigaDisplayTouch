@@ -38,9 +38,7 @@ void setup() {
 }
 
 void loop() {
-  #if TOUCH_MODE
-    touch.detect();
-  #else
+  #if (TOUCH_MODE == 0)
     uint8_t contacts;
     GDTpoint_t points[5];
     if(touch.detect(contacts, points)) {

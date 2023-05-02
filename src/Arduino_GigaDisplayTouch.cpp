@@ -16,14 +16,15 @@
 #define GT911_REG_CONFIG_VERSION        0x8047
 
 /* Private variables ---------------------------------------------------------*/
-volatile bool _gt911DataReadyIrq = false;
+rtos::Thread t;
+events::EventQueue queue(32 * EVENTS_EVENT_SIZE);  
 
 /* Private function prototypes -----------------------------------------------*/
 void _gt911_irqHandler();
 
 /* Functions -----------------------------------------------------------------*/
 Arduino_GigaDisplayTouch::Arduino_GigaDisplayTouch(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr)
-: _wire{wire}, _intPin{intPin}, _rstPin{rstPin}, _addr{addr} 
+: _wire{wire}, _intPin{intPin}, _rstPin{rstPin}, _addr{addr}, _irqInt{digitalPinToPinName(intPin)}
 { }
 
 Arduino_GigaDisplayTouch::~Arduino_GigaDisplayTouch() 
@@ -55,7 +56,6 @@ bool Arduino_GigaDisplayTouch::begin() {
     delay(51);
     pinMode(_intPin, INPUT);
 
-    _gt911DataReadyIrq = false;
     _gt911TouchHandler = nullptr;
 
     /* GT911 test communication */
@@ -67,13 +67,6 @@ bool Arduino_GigaDisplayTouch::begin() {
 
 void Arduino_GigaDisplayTouch::end() 
 { }
-
-void Arduino_GigaDisplayTouch::detect() {
-  if (_gt911DataReadyIrq) {
-    _gt911onIrq();
-    _gt911DataReadyIrq = false;
-  }
-}
 
 bool Arduino_GigaDisplayTouch::detect(uint8_t& contacts, GDTpoint_t* points) {
     uint8_t rawpoints[GT911_MAX_CONTACTS * GT911_CONTACT_SIZE];
@@ -99,7 +92,9 @@ bool Arduino_GigaDisplayTouch::detect(uint8_t& contacts, GDTpoint_t* points) {
 }
 
 void Arduino_GigaDisplayTouch::attach(void (*handler)(uint8_t, GDTpoint_t*)) {
-    attachInterrupt(_intPin, _gt911_irqHandler, RISING);
+    t.start(callback(&queue, &events::EventQueue::dispatch_forever));
+    _irqInt.rise(queue.event(mbed::callback(this, &Arduino_GigaDisplayTouch::_gt911onIrq)));
+
     _gt911TouchHandler = handler;
 }
 
@@ -184,12 +179,6 @@ uint8_t Arduino_GigaDisplayTouch::_gt911ReadInputCoord(uint8_t * pointsbuf, uint
 
     contacts = pointsbuf[0] & 0xF;
     return 0;
-}
-
-void _gt911_irqHandler() {
-  noInterrupts();
-  _gt911DataReadyIrq = true;
-  interrupts();
 }
 
 /**** END OF FILE ****/
