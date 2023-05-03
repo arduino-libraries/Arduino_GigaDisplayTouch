@@ -1,15 +1,32 @@
-/**
-  ******************************************************************************
-  * @file    Arduino_GigaDisplayTouch.h
-  * @author  Leonardo Cavagnis
-  * @version 
-  * @date    
-  * @brief   
-  ******************************************************************************
-  */
+/*
+ * Copyright 2023 Arduino SA
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-#ifndef _ARDUINO_GIGADISPLAYTOUCH_H
-#define _ARDUINO_GIGADISPLAYTOUCH_H
+/**
+ * @file Arduino_GigaDisplayTouch.h
+ * @author Leonardo Cavagnis
+ * @brief Header file for the Arduino Giga Display Touch library.
+ *
+ * This library allows to capture up to 5 concurrent touch points on Arduino Giga Display Shield.
+ * Supported controller: Goodix GT911
+ */
+
+#ifndef __ARDUINO_GIGADISPLAYTOUCH_H
+#define __ARDUINO_GIGADISPLAYTOUCH_H
 
 /* Includes ------------------------------------------------------------------*/
 #include <Arduino.h>
@@ -40,8 +57,21 @@ struct GDTpoint_s {
 };
 
 /* Class ----------------------------------------------------------------------*/
+
+/**
+ * @class Arduino_GigaDisplayTouch
+ * @brief Class for Giga Display Touch controller driver.
+ */
 class Arduino_GigaDisplayTouch {
   public:  
+    /**
+     * @brief Construct a new touch controller for Giga Display Shield.
+     *
+     * @param wire A reference to the Wire interface to be used for communication with the touch controller.
+     * @param intPin The interrupt pin number for the touch controller.
+     * @param rstPin The reset pin number for the touch controller.
+     * @param addr The device address for the touch controller.
+     */
     #if defined(ARDUINO_GIGA)
       Arduino_GigaDisplayTouch(TwoWire& wire  = Wire1, 
                                uint8_t intPin = PinNameToIndex(PI_1),
@@ -60,10 +90,33 @@ class Arduino_GigaDisplayTouch {
     #endif
       ~Arduino_GigaDisplayTouch();
 
+
+      /**
+       * @brief Initialize the touch controller.
+       *
+       * @return true If the controller is correctly configured
+       * @return false Otherwise
+       */
       bool begin();
+
+      /**
+       * @brief De-initialize the touch controller.
+       */
       void end();
 
+      /**
+       * @brief Check if a touch event is detected and get the touch points.
+       * @param contacts The number of detected touch points.
+       * @param points The array containing the coordinates of the touch points.
+       * @return true If a touch event is detected
+       * @return false Otherwise
+       */
       bool detect(uint8_t& contacts, GDTpoint_t* points);
+
+      /**
+       * @brief Attach an interrupt handler function for touch detection callbacks.
+       * @param handler The pointer to the user-defined handler function.
+       */
       void attach(void (*handler)(uint8_t, GDTpoint_t*));
   private:
       TwoWire&          _wire;
@@ -81,4 +134,4 @@ class Arduino_GigaDisplayTouch {
       uint8_t   _gt911ReadInputCoord(uint8_t * pointsbuf, uint8_t& contacts);
 };
 
-#endif /* _ARDUINO_GIGADISPLAYTOUCH_H */
+#endif /* __ARDUINO_GIGADISPLAYTOUCH_H */
