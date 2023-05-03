@@ -1,1 +1,1 @@
-# Arduino Giga Display Shield Library
+# Arduino Giga Display Touch Library
