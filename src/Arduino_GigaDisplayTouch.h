@@ -47,6 +47,10 @@ typedef struct GDTpoint_s GDTpoint_t;
 /* Exported enumeration ------------------------------------------------------*/
 
 /* Exported struct -----------------------------------------------------------*/
+
+/**
+ * @brief Struct representing a touch point.
+ */
 struct GDTpoint_s {
   // 0x814F-0x8156, ... 0x8176 (5 points) 
   uint8_t trackId;
@@ -94,7 +98,7 @@ class Arduino_GigaDisplayTouch {
       /**
        * @brief Initialize the touch controller.
        *
-       * @return true If the controller is correctly configured
+       * @return true If the touch controller is successfully initialized
        * @return false Otherwise
        */
       bool begin();
