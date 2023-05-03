@@ -20,7 +20,6 @@ rtos::Thread t;
 events::EventQueue queue(32 * EVENTS_EVENT_SIZE);  
 
 /* Private function prototypes -----------------------------------------------*/
-void _gt911_irqHandler();
 
 /* Functions -----------------------------------------------------------------*/
 Arduino_GigaDisplayTouch::Arduino_GigaDisplayTouch(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr)
@@ -99,7 +98,10 @@ void Arduino_GigaDisplayTouch::attach(void (*handler)(uint8_t, GDTpoint_t*)) {
 }
 
 uint8_t Arduino_GigaDisplayTouch::_gt911WriteOp(uint16_t reg, uint8_t data) {
-    _gt911WriteBytesOp(reg, &data, 1);
+    uint8_t status = 0;
+    status = _gt911WriteBytesOp(reg, &data, 1);
+
+    return status;
 }
 
 uint8_t Arduino_GigaDisplayTouch::_gt911WriteBytesOp(uint16_t reg, uint8_t * data, uint8_t len) {
@@ -136,8 +138,8 @@ uint8_t Arduino_GigaDisplayTouch::_gt911ReadOp(uint16_t reg, uint8_t * data, uin
         data[index++] = _wire.read();
     }
 
-    if (len == index) return 0; /* Success */
-    else return 4; /* Other error */
+    if (len == index)   return 0;
+    else                return 4; /* Other error */
 }
 
 void Arduino_GigaDisplayTouch::_gt911onIrq() {
@@ -170,7 +172,7 @@ uint8_t Arduino_GigaDisplayTouch::_gt911ReadInputCoord(uint8_t * pointsbuf, uint
     error    = _gt911ReadOp(GT911_REG_GESTURE_START_POINT, pointsbuf, GT911_CONTACT_SIZE * GT911_MAX_CONTACTS);
 
     if (error) {
-        return 1; /* I2C Error */
+        return 1; /* I2C comm error */
     }
     
     if (!(pointsbuf[0] & 0x80)) {	  
