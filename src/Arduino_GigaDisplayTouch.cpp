@@ -36,12 +36,7 @@
 /* Private variables ---------------------------------------------------------*/
 rtos::Thread t;
 events::EventQueue queue(32 * EVENTS_EVENT_SIZE);  
-
-#if __has_include ("lvgl.h")
-bool        lvgl_touch_pressed  = false;
-uint16_t    lvgl_touch_x_coord  = 0;
-uint16_t    lvgl_touch_y_coord  = 0;
-#endif
+Arduino_GigaDisplayTouch * gThis;
 
 /* Private function prototypes -----------------------------------------------*/
 #if __has_include ("lvgl.h")
@@ -83,8 +78,6 @@ bool Arduino_GigaDisplayTouch::begin() {
     pinMode(_intPin, INPUT);
 
     _gt911TouchHandler = nullptr;
-    t.start(callback(&queue, &events::EventQueue::dispatch_forever));
-    _irqInt.rise(queue.event(mbed::callback(this, &Arduino_GigaDisplayTouch::_gt911onIrq)));
 
     /* GT911 test communication */
     uint8_t testByte;
@@ -96,6 +89,8 @@ bool Arduino_GigaDisplayTouch::begin() {
     indev_drv.type = LV_INDEV_TYPE_POINTER;                                         /* Touch pad is a pointer-like device */                                            
     indev_drv.read_cb = _lvglTouchCb;                                               /* Set your driver function */
     lv_indev_t * my_indev = lv_indev_drv_register(&indev_drv);                      /* Register the driver in LVGL and save the created input device object */
+
+    gThis = this;
 #endif
 
     return (error == 0);
@@ -103,14 +98,18 @@ bool Arduino_GigaDisplayTouch::begin() {
 
 #if __has_include ("lvgl.h")
 void _lvglTouchCb(lv_indev_drv_t * indev, lv_indev_data_t * data) {
-  data->state = (lvgl_touch_pressed) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-  if(data->state == LV_INDEV_STATE_PR) {
-    data->point.x = lvgl_touch_x_coord;
-    data->point.y = lvgl_touch_y_coord;
-    lvgl_touch_pressed = false;
-  }
-  
-  return;
+    uint8_t contacts;
+    GDTpoint_t points[5];
+
+    if(gThis->detect(contacts, points)) {
+        data->state     = LV_INDEV_STATE_PR;
+        data->point.x   = points[0].x;
+        data->point.y   = points[0].y;
+    } else {
+        data->state     = LV_INDEV_STATE_REL;
+    }
+
+    return;
 }
 #endif
 
@@ -142,6 +141,8 @@ bool Arduino_GigaDisplayTouch::detect(uint8_t& contacts, GDTpoint_t* points) {
 
 void Arduino_GigaDisplayTouch::attach(void (*handler)(uint8_t, GDTpoint_t*)) {
     _gt911TouchHandler = handler;
+    t.start(callback(&queue, &events::EventQueue::dispatch_forever));
+    _irqInt.rise(queue.event(mbed::callback(this, &Arduino_GigaDisplayTouch::_gt911onIrq)));
 }
 
 uint8_t Arduino_GigaDisplayTouch::_gt911WriteOp(uint16_t reg, uint8_t data) {
@@ -208,14 +209,6 @@ void Arduino_GigaDisplayTouch::_gt911onIrq() {
     }
 
     if (contacts > 0 && _gt911TouchHandler != nullptr) _gt911TouchHandler(contacts, _points);
-
-#if __has_include ("lvgl.h")
-    if (contacts > 0) {
-        lvgl_touch_pressed  = true;
-        lvgl_touch_x_coord  = _points[0].x;
-        lvgl_touch_y_coord  = _points[0].y;
-    }
-#endif
  
     _gt911WriteOp(GT911_REG_GESTURE_START_POINT, 0); /* Reset buffer status to finish the reading */
 }
