@@ -13,10 +13,11 @@ void gigaTouchHandler(uint8_t contacts, GDTpoint_t* points) {
   Serial.print("Contacts: ");
   Serial.println(contacts);
 
-  for (uint8_t i = 0; i < contacts; i++) {
-    Serial.print(points[i].x);
+  if (contacts > 0) {
+    /* First touch point */
+    Serial.print(points[0].x);
     Serial.print(" ");
-    Serial.println(points[i].y);
+    Serial.println(points[0].y);
   }
 }
 
