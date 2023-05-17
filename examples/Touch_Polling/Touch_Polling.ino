@@ -7,13 +7,13 @@
 
 #include "Arduino_GigaDisplayTouch.h"
 
-Arduino_GigaDisplayTouch touch;
+Arduino_GigaDisplayTouch touchDetector;
 
 void setup() {
   Serial.begin(115200);
   while(!Serial) {}
 
-  if (touch.begin()) {
+  if (touchDetector.begin()) {
     Serial.print("Touch controller init - OK");
   } else {
     Serial.print("Touch controller init - FAILED");
@@ -25,7 +25,9 @@ void loop() {
   uint8_t contacts;
   GDTpoint_t points[5];
   
-  if(touch.detect(contacts, points)) {
+  contacts = touchDetector.getTouchPoints(points);
+
+  if (contacts > 0) {
     Serial.print("Contacts: ");
     Serial.println(contacts);
 

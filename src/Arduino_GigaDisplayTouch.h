@@ -98,8 +98,7 @@ class Arduino_GigaDisplayTouch {
       /**
        * @brief Initialize the touch controller.
        *
-       * @return true If the touch controller is successfully initialized
-       * @return false Otherwise
+       * @return true If the touch controller is successfully initialized, false Otherwise
        */
       bool begin();
 
@@ -110,18 +109,16 @@ class Arduino_GigaDisplayTouch {
 
       /**
        * @brief Check if a touch event is detected and get the touch points.
-       * @param contacts The number of detected touch points.
        * @param points The array containing the coordinates of the touch points.
-       * @return true If a touch event is detected
-       * @return false Otherwise
+       * @return uint8_t The number of detected touch points.
        */
-      bool detect(uint8_t& contacts, GDTpoint_t* points);
+      uint8_t getTouchPoints(GDTpoint_t* points);
 
       /**
        * @brief Attach an interrupt handler function for touch detection callbacks.
        * @param handler The pointer to the user-defined handler function.
        */
-      void attach(void (*handler)(uint8_t, GDTpoint_t*));
+      void onDetect(void (*handler)(uint8_t, GDTpoint_t*));
   private:
       TwoWire&          _wire;
       uint8_t           _intPin;
