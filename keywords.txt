@@ -13,8 +13,8 @@ Arduino_GigaDisplayTouch KEYWORD1
 begin	KEYWORD2
 end	    KEYWORD2
 
-detect  KEYWORD2
-attach  KEYWORD2
+getTouchPoints  KEYWORD2
+onDetect  KEYWORD2
 
 ##################################################
 # Constants
