@@ -14,8 +14,8 @@ The main class for managing the touch controller of the Giga Display Shield.
 `public ` [`Arduino_GigaDisplayTouch`](#)`(TwoWire& wire, uint8_t intPin, uint8_t rstPin, uint8_t addr)` | Construct a new touch controller for Giga Display Shield.
 `public bool` [`begin`](#)`()` | Initialize the touch controller.
 `public void` [`end`](#)`()` | De-initialize the touch controller.
-`public bool` [`detect`](#)`(uint8_t& contacts, GDTpoint_t* points)` | Check if a touch event is detected and get the touch points.
-`public void` [`attach`](#)`(void (*handler)(uint8_t, GDTpoint_t*))` | Attach an interrupt handler function for touch detection callbacks.
+`public uint8_t` [`getTouchPoints`](#)`(GDTpoint_t* points)` | Check if a touch event is detected and get the touch points.
+`public void` [`onDetect`](#)`(void (*handler)(uint8_t, GDTpoint_t*))` | Attach an interrupt handler function for touch detection callbacks.
 
 ## Members
 
@@ -37,34 +37,25 @@ Construct a new touch controller for Giga Display Shield.
 Initialize the touch controller.
 
 #### Returns
-true If the touch controller is successfully initialized 
-
-#### Returns
-false Otherwise
+true If the touch controller is successfully initialized, false otherwise
 
 ### `public void` [`end`](#)`()` 
 
 De-initialize the touch controller.
 
-### `public bool` [`detect`](#)`(uint8_t& contacts, GDTpoint_t* points)` 
+### `public uint8_t` [`getTouchPoints`](#)`(GDTpoint_t* points)` 
 
 Check if a touch event is detected and get the touch points.
 
 #### Parameters
-* `contacts` The number of detected touch points.
-
 * `points` The array containing the coordinates of the touch points.
 
 #### Returns
-true If a touch event is detected
+uint8_t The number of detected touch points.
 
-#### Returns
-false Otherwise
-
-### `public void` [`attach`](#)`(void (*handler)(uint8_t, GDTpoint_t*))` 
+### `public void` [`onDetect`](#)`(void (*handler)(uint8_t, GDTpoint_t*))` 
 
 Attach an interrupt handler function for touch detection callbacks.
 
 #### Parameters
-
 * `handler` The pointer to the user-defined handler function.

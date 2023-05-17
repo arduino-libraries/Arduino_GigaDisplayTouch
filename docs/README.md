@@ -21,25 +21,33 @@ To use this library, you must have a supported Arduino board and the Arduino Gig
 ```cpp
 #include "Arduino_GigaDisplayTouch.h"
 
-Arduino_GigaDisplayTouch touch;
+Arduino_GigaDisplayTouch touchDetector;
 
 void setup() {
-    touch.begin();
+    Serial.begin(115200);
+    touchDetector.begin();
 }
 
 void loop() {
     uint8_t contacts;
     GDTpoint_t points[5];
     
-    if(touch.detect(contacts, points)) {
+    contacts = touchDetector.getTouchPoints(points);
+    if (contacts > 0) { //Check if at least one touch occurs on the screen
+        //Print the coordinates of all simultaneous contacts detected
+        for (uint8_t i = 0; i < contacts; i++) {
+            Serial.print(points[i].x);
+            Serial.print(" ");
+            Serial.println(points[i].y);
+        }
         //Do something with the touch coordinates
     }
 }
 ```
 ## Examples
 
-- **Touch_IRQ:** This example demonstrates how to detect touch event and retrieve coordinate values using the interrupt approach.
-- **Touch_Polling:** This example demonstrates how to detect touch event and retrieve coordinate values using the polling/on-request approach.
+- **[Touch_IRQ](../examples/Touch_IRQ):** This example demonstrates how to detect touch event and retrieve coordinate values using the interrupt approach.
+- **[Touch_Polling](../examples/Touch_Polling):** This example demonstrates how to detect touch event and retrieve coordinate values using the polling/on-request approach.
 
 ## API
 
