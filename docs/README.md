@@ -1,6 +1,6 @@
 # Arduino Giga Display Touch Library
 
-[![License](https://img.shields.io/badge/License-LGPLv3-blue.svg)]()
+[![License](https://img.shields.io/badge/License-LGPLv3-blue.svg)]() [![Check Clang status](https://github.com/arduino-libraries/Arduino_GigaDisplayTouch/actions/workflows/check-clang.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_GigaDisplayTouch/actions/workflows/check-clang.yml)
 
 The Arduino Giga Display Touch library is a C++ library designed to manage the touch controller of the Giga Display Shield. It is currently compatible with Goodix GT911 5-point Capacitive touch controller. 
 

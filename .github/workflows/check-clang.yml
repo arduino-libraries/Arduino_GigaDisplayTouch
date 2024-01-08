@@ -1,0 +1,30 @@
+# Source: https://github.com/aliphys/.github/blob/main/workflow-templates/check-clang.yml
+name: Check Clang
+
+# See: https://github.com/aliphys/.github/blob/main/workflow-templates/check-clang.md
+on:
+    push:
+    pull_request:
+    schedule:
+      # Run every Tuesday at 8 AM UTC to catch breakage caused by new rules added to Arduino Lint.
+      - cron: "0 8 * * TUE"
+    workflow_dispatch:
+    repository_dispatch:
+        
+jobs:
+  formatting-check:
+    name: Formatting Check
+    runs-on: ubuntu-latest
+    strategy: # Strategy individual folders
+      matrix:
+        path:
+          - 'src'       # library source files (.h/.cpp)
+          - 'examples'  # library example sketches (.ino)
+          
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run clang-format on ${{ matrix.path }}
+      uses: jidicula/clang-format-action@v4.11.0
+      with:
+        clang-format-version: '17'    #v17 must be used
+        check-path: ${{ matrix.path }}
