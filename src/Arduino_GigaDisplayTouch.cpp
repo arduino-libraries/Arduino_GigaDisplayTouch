@@ -40,7 +40,11 @@ Arduino_GigaDisplayTouch * gThis;
 
 /* Private function prototypes -----------------------------------------------*/
 #if __has_include ("lvgl.h")
+#if (LVGL_VERSION_MAJOR == 9)
+void _lvglTouchCb(lv_indev_t * indev, lv_indev_data_t * data);
+#else
 void _lvglTouchCb(lv_indev_drv_t * indev, lv_indev_data_t * data);
+#endif
 #endif
 
 /* Functions -----------------------------------------------------------------*/
@@ -84,19 +88,42 @@ bool Arduino_GigaDisplayTouch::begin() {
     uint8_t error = _gt911ReadOp(GT911_REG_CONFIG_VERSION,  &testByte, 1);
 
 #if __has_include ("lvgl.h")
+#if (LVGL_VERSION_MAJOR == 9)
+    static lv_indev_t * indev = lv_indev_create();
+    lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(indev, _lvglTouchCb);
+#else
     static lv_indev_drv_t indev_drv;                                                /* Descriptor of a input device driver */
     lv_indev_drv_init(&indev_drv);                                                  /* Basic initialization */
-    indev_drv.type = LV_INDEV_TYPE_POINTER;                                         /* Touch pad is a pointer-like device */                                            
+    indev_drv.type = LV_INDEV_TYPE_POINTER;                                         /* Touch pad is a pointer-like device */
     indev_drv.read_cb = _lvglTouchCb;                                               /* Set your driver function */
     lv_indev_t * my_indev = lv_indev_drv_register(&indev_drv);                      /* Register the driver in LVGL and save the created input device object */
-
-    gThis = this;
+#endif
 #endif
 
+    gThis = this;
     return (error == 0);
 }
 
 #if __has_include ("lvgl.h")
+#if (LVGL_VERSION_MAJOR == 9)
+void _lvglTouchCb(lv_indev_t * indev, lv_indev_data_t * data) {
+    uint8_t contacts;
+    GDTpoint_t points[5];
+
+    contacts = gThis->getTouchPoints(points);
+
+    if(contacts > 0) {
+        data->state     = LV_INDEV_STATE_PRESSED;
+        data->point.x   = points[0].x;
+        data->point.y   = points[0].y;
+    } else {
+        data->state     = LV_INDEV_STATE_RELEASED;
+    }
+
+    return;
+}
+#else
 void _lvglTouchCb(lv_indev_drv_t * indev, lv_indev_data_t * data) {
     uint8_t contacts;
     GDTpoint_t points[5];
@@ -113,6 +140,7 @@ void _lvglTouchCb(lv_indev_drv_t * indev, lv_indev_data_t * data) {
 
     return;
 }
+#endif
 #endif
 
 void Arduino_GigaDisplayTouch::end() 
