@@ -1,9 +1,21 @@
-/*
-  Touch_IRQ
-
-  created 03 May 2023
-  by Leonardo Cavagnis
-*/
+/* 
+ * Touch_IRQ.ino
+ * 
+ * This example shows how to get the number of points and the coordinates of the first touch points detected by the touch controller using interrupts.
+ * 
+ * The setup() function initializes the serial communication and the touch controller. Whenever a touch event is detcted, the gigaTouchHandler function is called that prints the number of points and first touch co-ordinates to the Serial Monitor. The loop() function is empty because the touch controller is configured to work with interrupts. 
+ * 
+ * For the polling version of this example, see Touch_Polling.ino
+ * 
+ * Instructions:
+ * 1. Connect your GIGA Display Shield (ASX00039) to a GIGA R1 WiFi (ABX00063) board .
+ * 2. Upload this sketch to your board.
+ * 3. Open the Serial Monitor.
+ * 4. Touch the screen with your finger(s) and view the coordinates printed on the Serial Monitor.
+ * 
+ * Initial author: Leonardo Cavagnis @leonardocavagnis
+ * Created: 03 May 2023
+ */
 
 #include "Arduino_GigaDisplayTouch.h"
 
