@@ -180,7 +180,10 @@ void Arduino_GigaDisplayTouch::onDetect(void (*handler)(uint8_t, GDTpoint_t*)) {
         }
     } else {
         _gt911TouchHandler = handler;
-        t.start(callback(&queue, &events::EventQueue::dispatch_forever));
+        // Only start thread if it is inactive
+        if (t.get_state() == rtos::Thread::Inactive) {
+            t.start(callback(&queue, &events::EventQueue::dispatch_forever));
+        }
         _irqInt.rise(queue.event(mbed::callback(this, &Arduino_GigaDisplayTouch::_gt911onIrq)));
     }
 }
