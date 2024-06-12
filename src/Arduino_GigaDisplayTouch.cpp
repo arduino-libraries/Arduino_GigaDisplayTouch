@@ -173,6 +173,7 @@ uint8_t Arduino_GigaDisplayTouch::getTouchPoints(GDTpoint_t* points) {
 void Arduino_GigaDisplayTouch::onDetect(void (*handler)(uint8_t, GDTpoint_t*)) {
     if (handler == nullptr) {
         // Detach the interrupt and stop the event queue thread
+        _gt911TouchHandler = nullptr;
         queue.break_dispatch();
         _irqInt.rise(nullptr);
         if (t.get_state() != rtos::Thread::Deleted) {
