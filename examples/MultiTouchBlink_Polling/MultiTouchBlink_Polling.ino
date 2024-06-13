@@ -34,7 +34,7 @@ void setup() {
     Serial.println("Touch controller init - OK");
   } else {
     Serial.println("Touch controller init - FAILED");
-    while (1)
+    while (1) ;
   }
 }
 
