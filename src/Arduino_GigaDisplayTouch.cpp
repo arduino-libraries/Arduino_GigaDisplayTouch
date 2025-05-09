@@ -171,9 +171,28 @@ uint8_t Arduino_GigaDisplayTouch::getTouchPoints(GDTpoint_t* points) {
 }
 
 void Arduino_GigaDisplayTouch::onDetect(void (*handler)(uint8_t, GDTpoint_t*)) {
-    _gt911TouchHandler = handler;
-    t.start(callback(&queue, &events::EventQueue::dispatch_forever));
-    _irqInt.rise(queue.event(mbed::callback(this, &Arduino_GigaDisplayTouch::_gt911onIrq)));
+    if (handler == nullptr) {
+        // Detach the interrupt and stop the event queue thread
+        _gt911TouchHandler = nullptr;
+        queue.break_dispatch();
+        _irqInt.rise(nullptr);
+        if (t.get_state() != rtos::Thread::Deleted) {
+            t.join(); // prevent mbedOS from crashing
+        }
+    } else {
+        _gt911TouchHandler = handler;
+        // Only start thread if it is inactive
+        if (t.get_state() == rtos::Thread::Inactive) {
+            t.start(callback(&queue, &events::EventQueue::dispatch_forever));
+        }
+        _irqInt.rise(queue.event(mbed::callback(this, &Arduino_GigaDisplayTouch::_gt911onIrq)));
+    }
+}
+
+void Arduino_GigaDisplayTouch::detach() {
+    queue.break_dispatch();
+    _irqInt.rise(nullptr);
+    t.terminate();
 }
 
 uint8_t Arduino_GigaDisplayTouch::_gt911WriteOp(uint16_t reg, uint8_t data) {
