@@ -30,11 +30,13 @@ static Arduino_GigaDisplayTouch *gThis;
 void _lvglTouchCb(lv_indev_t *indev, lv_indev_data_t *data);
 
 #ifndef LVGL_VERSION_MAJOR
-#error "LVGL_VERSION_MAJOR is not defined. Please include a valid LVGL v9.x.x installation."
+#error                                                                         \
+    "LVGL_VERSION_MAJOR is not defined. Please include a valid LVGL v9.x.x installation."
 #endif
 
 #if LVGL_VERSION_MAJOR < 9
-#error "Arduino_GigaDisplayTouch library supports only LVGL version 9.x.x or higher."
+#error                                                                         \
+    "Arduino_GigaDisplayTouch library supports only LVGL version 9.x.x or higher."
 #endif
 #endif
 
@@ -47,16 +49,16 @@ extern "C" void zephyr_input_register_callback(zephyr_input_callback_t cb,
 void touch_event_callback(struct input_event *evt, void *user_data);
 
 Arduino_GigaDisplayTouch::Arduino_GigaDisplayTouch()
-  : Arduino_GigaDisplayTouch(Wire1) {}
+    : Arduino_GigaDisplayTouch(Wire1) {}
 
 Arduino_GigaDisplayTouch::Arduino_GigaDisplayTouch(TwoWire &wire)
-  : _wire{ wire } {}
+    : _wire{wire} {}
 
 Arduino_GigaDisplayTouch::~Arduino_GigaDisplayTouch() {}
 
 bool Arduino_GigaDisplayTouch::begin() {
   static const struct device *const dev =
-    DEVICE_DT_GET(DT_CHOSEN(zephyr_touch));
+      DEVICE_DT_GET(DT_CHOSEN(zephyr_touch));
   if (!dev) {
     printk("<ERR> touch DEV null\n");
     return false;
@@ -157,7 +159,7 @@ void touch_event_callback(struct input_event *evt, void *user_data) {
   static bool sem_taken = false;
 
   static const struct device *const dev =
-    DEVICE_DT_GET(DT_CHOSEN(zephyr_touch));
+      DEVICE_DT_GET(DT_CHOSEN(zephyr_touch));
   Arduino_GigaDisplayTouch *touch = (Arduino_GigaDisplayTouch *)user_data;
 
   if (!touch || evt->dev != dev) {
@@ -178,19 +180,19 @@ void touch_event_callback(struct input_event *evt, void *user_data) {
   }
 
   switch (evt->code) {
-    case INPUT_ABS_MT_SLOT:
-      index = evt->value;
-      touch->_points[index].trackId = evt->value;
-      break;
-    case INPUT_ABS_X:
-      touch->_points[index].x = evt->value;
-      break;
-    case INPUT_ABS_Y:
-      touch->_points[index].y = evt->value;
-      break;
-    case INPUT_BTN_TOUCH:
-      touch->_points[index].pressed = evt->value;
-      break;
+  case INPUT_ABS_MT_SLOT:
+    index = evt->value;
+    touch->_points[index].trackId = evt->value;
+    break;
+  case INPUT_ABS_X:
+    touch->_points[index].x = evt->value;
+    break;
+  case INPUT_ABS_Y:
+    touch->_points[index].y = evt->value;
+    break;
+  case INPUT_BTN_TOUCH:
+    touch->_points[index].pressed = evt->value;
+    break;
   }
 
   // Release the semaphore on the last event (BTN_TOUCH pressed).
@@ -202,7 +204,7 @@ void touch_event_callback(struct input_event *evt, void *user_data) {
       for (int i = 0; i < GT911_MAX_CONTACTS; i++) {
         if (touch->_points[i].pressed) {
           touch->_callback_points[count_pressed].trackId =
-            touch->_points[i].trackId;
+              touch->_points[i].trackId;
           touch->_callback_points[count_pressed].x = touch->_points[i].x;
           touch->_callback_points[count_pressed].y = touch->_points[i].y;
           count_pressed++;
