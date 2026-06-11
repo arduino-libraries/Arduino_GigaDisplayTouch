@@ -37,8 +37,8 @@
 #endif
 
 /* Exported defines ----------------------------------------------------------*/
-#define GT911_I2C_ADDR_BA_BB (0x5D | 0x80) // 0xBA/0xBB - 0x5D (7bit address)
-#define GT911_I2C_ADDR_28_29 (0x14 | 0x80) // 0x28/0x29 - 0x14 (7bit address)
+#define GT911_I2C_ADDR_BA_BB (0x5D | 0x80)  // 0xBA/0xBB - 0x5D (7bit address)
+#define GT911_I2C_ADDR_28_29 (0x14 | 0x80)  // 0x28/0x29 - 0x14 (7bit address)
 
 #define GT911_CONTACT_SIZE 8
 #if defined(__MBED__)

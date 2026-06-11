@@ -52,8 +52,8 @@ void _lvglTouchCb(lv_indev_drv_t *indev, lv_indev_data_t *data);
 Arduino_GigaDisplayTouch::Arduino_GigaDisplayTouch(TwoWire &wire,
                                                    uint8_t intPin,
                                                    uint8_t rstPin, uint8_t addr)
-    : _wire{wire}, _intPin{intPin}, _rstPin{rstPin}, _addr{addr},
-      _irqInt{digitalPinToPinName(intPin)} {}
+  : _wire{ wire }, _intPin{ intPin }, _rstPin{ rstPin }, _addr{ addr },
+    _irqInt{ digitalPinToPinName(intPin) } {}
 
 Arduino_GigaDisplayTouch::~Arduino_GigaDisplayTouch() {}
 
@@ -99,10 +99,10 @@ bool Arduino_GigaDisplayTouch::begin() {
   static lv_indev_drv_t indev_drv; /* Descriptor of a input device driver */
   lv_indev_drv_init(&indev_drv);   /* Basic initialization */
   indev_drv.type =
-      LV_INDEV_TYPE_POINTER;        /* Touch pad is a pointer-like device */
+    LV_INDEV_TYPE_POINTER;          /* Touch pad is a pointer-like device */
   indev_drv.read_cb = _lvglTouchCb; /* Set your driver function */
   lv_indev_t *my_indev =
-      lv_indev_drv_register(&indev_drv); /* Register the driver in LVGL and save
+    lv_indev_drv_register(&indev_drv); /* Register the driver in LVGL and save
                                             the created input device object */
 #endif
 #endif
@@ -168,7 +168,7 @@ uint8_t Arduino_GigaDisplayTouch::getTouchPoints(GDTpoint_t *points) {
     points[i].x = ((uint16_t)rawpoints[3 + 8 * i] << 8) + rawpoints[2 + 8 * i];
     points[i].y = ((uint16_t)rawpoints[5 + 8 * i] << 8) + rawpoints[4 + 8 * i];
     points[i].area =
-        ((uint16_t)rawpoints[7 + 8 * i] << 8) + rawpoints[6 + 8 * i];
+      ((uint16_t)rawpoints[7 + 8 * i] << 8) + rawpoints[6 + 8 * i];
   }
 
   _gt911WriteOp(GT911_REG_GESTURE_START_POINT,
@@ -182,7 +182,7 @@ void Arduino_GigaDisplayTouch::onDetect(void (*handler)(uint8_t,
   _gt911TouchHandler = handler;
   t.start(callback(&queue, &events::EventQueue::dispatch_forever));
   _irqInt.rise(queue.event(
-      mbed::callback(this, &Arduino_GigaDisplayTouch::_gt911onIrq)));
+    mbed::callback(this, &Arduino_GigaDisplayTouch::_gt911onIrq)));
 }
 
 uint8_t Arduino_GigaDisplayTouch::_gt911WriteOp(uint16_t reg, uint8_t data) {
@@ -252,7 +252,7 @@ void Arduino_GigaDisplayTouch::_gt911onIrq() {
     _points[i].x = ((uint16_t)rawpoints[3 + 8 * i] << 8) + rawpoints[2 + 8 * i];
     _points[i].y = ((uint16_t)rawpoints[5 + 8 * i] << 8) + rawpoints[4 + 8 * i];
     _points[i].area =
-        ((uint16_t)rawpoints[7 + 8 * i] << 8) + rawpoints[6 + 8 * i];
+      ((uint16_t)rawpoints[7 + 8 * i] << 8) + rawpoints[6 + 8 * i];
   }
 
   if (contacts > 0 && _gt911TouchHandler != nullptr)
