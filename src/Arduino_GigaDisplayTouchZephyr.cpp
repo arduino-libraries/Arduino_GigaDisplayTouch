@@ -40,6 +40,12 @@ void _lvglTouchCb(lv_indev_t *indev, lv_indev_data_t *data);
 #endif
 #endif
 
+#if DT_NODE_HAS_STATUS_OKAY(DT_CHOSEN(zephyr_touch))
+#define TOUCH_DEV DEVICE_DT_GET(DT_CHOSEN(zephyr_touch))
+#else
+#error "This board does not include a touch device. Try with the Arduino Giga."
+#endif
+
 static struct k_sem touch_sem;
 
 typedef void (*zephyr_input_callback_t)(struct input_event *evt,
@@ -57,18 +63,11 @@ Arduino_GigaDisplayTouch::Arduino_GigaDisplayTouch(TwoWire &wire)
 Arduino_GigaDisplayTouch::~Arduino_GigaDisplayTouch() {}
 
 bool Arduino_GigaDisplayTouch::begin() {
-  static const struct device *const dev =
-      DEVICE_DT_GET(DT_CHOSEN(zephyr_touch));
-  if (!dev) {
-    printk("<ERR> touch DEV null\n");
-    return false;
-  }
-
   _wire.begin();
 
-  if (!device_is_ready(dev)) {
+  if (!device_is_ready(TOUCH_DEV)) {
     // init device for first usage, if not ready
-    int err = device_init(dev);
+    int err = device_init(TOUCH_DEV);
     if (err < 0) {
       return false;
     }
