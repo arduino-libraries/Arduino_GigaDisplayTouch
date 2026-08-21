@@ -99,6 +99,7 @@ void _lvglTouchCb(lv_indev_t *indev, lv_indev_data_t *data) {
 void _lvglTouchCb(lv_indev_drv_t *indev, lv_indev_data_t *data) {
 #endif
   GDTpoint_t points[GT911_MAX_CONTACTS];
+  (void)indev; // Unused parameter
 
   // Usiamo getTouchPoints che gestisce già il semaforo in modo non bloccante
   uint8_t contacts = gThis->getTouchPoints(points);
