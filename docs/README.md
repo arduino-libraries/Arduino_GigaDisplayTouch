@@ -46,12 +46,12 @@ void loop() {
 ```
 ## Examples
 
-- **[Touch_IRQ](../examples/Touch_IRQ):** This example demonstrates how to detect touch event and retrieve coordinate values using the interrupt approach.
-- **[Touch_Polling](../examples/Touch_Polling):** This example demonstrates how to detect touch event and retrieve coordinate values using the polling/on-request approach.
+- **[Touch_IRQ](https://github.com/arduino-libraries/Arduino_GigaDisplayTouch/tree/main/examples/Touch_IRQ):** This example demonstrates how to detect touch event and retrieve coordinate values using the interrupt approach.
+- **[Touch_Polling](https://github.com/arduino-libraries/Arduino_GigaDisplayTouch/tree/main/examples/Touch_Polling):** This example demonstrates how to detect touch event and retrieve coordinate values using the polling/on-request approach.
 
 ## API
 
-The API documentation can be found [here](./api.md).
+The API documentation can be found [here](https://github.com/arduino-libraries/Arduino_GigaDisplayTouch/blob/main/docs/api.md).
 
 ## License
 
