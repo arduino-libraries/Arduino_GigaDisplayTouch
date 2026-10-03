@@ -7,8 +7,8 @@
 Arduino_GigaDisplayTouch KEYWORD1
 
 ##################################################
-# Methods and Functions 
-##################################################	
+# Methods and Functions
+##################################################
 
 begin	KEYWORD2
 end	    KEYWORD2

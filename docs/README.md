@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-LGPLv3-blue.svg)]() [![Check Clang status](https://github.com/arduino-libraries/Arduino_GigaDisplayTouch/actions/workflows/check-clang.yml/badge.svg)](https://github.com/arduino-libraries/Arduino_GigaDisplayTouch/actions/workflows/check-clang.yml)
 
-The Arduino Giga Display Touch library is a C++ library designed to manage the touch controller of the Giga Display Shield. It is currently compatible with Goodix GT911 5-point Capacitive touch controller. 
+The Arduino Giga Display Touch library is a C++ library designed to manage the touch controller of the Giga Display Shield. It is currently compatible with Goodix GT911 5-point Capacitive touch controller.
 
 This library captures up to 5 concurrent touch points.
 
@@ -31,7 +31,7 @@ void setup() {
 void loop() {
     uint8_t contacts;
     GDTpoint_t points[5];
-    
+
     contacts = touchDetector.getTouchPoints(points);
     if (contacts > 0) { //Check if at least one touch occurs on the screen
         //Print the coordinates of all simultaneous contacts detected
