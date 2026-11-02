@@ -58,8 +58,8 @@ Arduino_GigaDisplayTouch::Arduino_GigaDisplayTouch(TwoWire &wire,
 Arduino_GigaDisplayTouch::~Arduino_GigaDisplayTouch() {}
 
 bool Arduino_GigaDisplayTouch::begin() {
-  _wire.setClock(400000); /* maximum transmission rate of 400K bps */
   _wire.begin();
+  _wire.setClock(400000); /* maximum transmission rate of 400K bps */
 
   delay(300);
 
